@@ -8,4 +8,7 @@ class AccountUnittests(unittest.TestCase):
         pass
 
     def test_read_transactions_from_transactions_txt(self):
-        pass
+        assert Transactions().read_transactions('transactions.txt').transactions.__len__() > 0
+
+if __name__ == '__main__':
+    unittest.main()
