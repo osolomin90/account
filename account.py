@@ -1,3 +1,5 @@
+import os
+
 class Transactions:
 
     def __init__(self):
@@ -7,8 +9,19 @@ class Transactions:
     def _print_message(self):
         print "Pleas create file 'transactions.txt' in format 'mm-dd-yyyy Type $xx.xx' and try again."
 
+    def __verify_if_file_is_not_empty(self, path):
+        with open(path) as my_file:
+            my_file.seek(0)
+            first_char = my_file.read(1)
+            if not first_char:
+                return True
+            else:
+                return False
+
     def read_transactions(self, txt_file='transactions.txt'):
         try:
+            if os.stat(txt_file).st_size == 0:
+                return self
             for t in open(txt_file):
                 if "$" and "-" in str(t) and str(t).split(" ").__len__() == 3:
                     self._transactions.append(t)

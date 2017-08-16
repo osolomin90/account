@@ -43,7 +43,7 @@ class AccountUnittests(unittest.TestCase):
 
     def test_if_get_total_balance_is_none_when_transaction_format_is_incorrect(self):
         with self.file as f:
-            f.write("01-02-2017 Deposit")
+            f.write("01-03-2019")
         assert Transactions().read_transactions(self.__test_file) \
             .get_total_balance() is None
 
@@ -51,14 +51,13 @@ class AccountUnittests(unittest.TestCase):
         with self.file as f:
             f.write("")
         assert Transactions().read_transactions(self.__test_file) \
-            .get_transactions_size()is None
+            .get_transactions_size() is None
 
     def test_if_get_first_transaction_with_negative_balance_is_none_when_transaction_format_is_incorrect(self):
         with self.file as f:
             f.write("$-4000.00\n")
         assert Transactions().read_transactions(self.__test_file) \
             .get_first_transaction_with_negative_balance() is None
-
 
     def tearDown(self):
         os.remove(self.__test_file)
