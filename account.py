@@ -1,4 +1,6 @@
 import os
+import sys
+
 
 class Transactions:
 
@@ -8,15 +10,6 @@ class Transactions:
 
     def _print_message(self):
         print "Pleas create file 'transactions.txt' in format 'mm-dd-yyyy Type $xx.xx' and try again."
-
-    def __verify_if_file_is_not_empty(self, path):
-        with open(path) as my_file:
-            my_file.seek(0)
-            first_char = my_file.read(1)
-            if not first_char:
-                return True
-            else:
-                return False
 
     def read_transactions(self, txt_file='transactions.txt'):
         try:
@@ -51,7 +44,10 @@ class Transactions:
                         return t.split(' ')[0].rstrip()+" "+t.split(' ')[2].rstrip()
 
 if __name__ == '__main__':
-    transactions = Transactions().read_transactions()
+    if sys.argv.__len__() > 1:
+        transactions = Transactions().read_transactions(str(sys.argv)[1])
+    else:
+        transactions = Transactions().read_transactions()
 
     if transactions._file_read:
         print "Total:", transactions.get_transactions_size()
