@@ -13,7 +13,7 @@ class AccountTransactions:
 
     def read_transactions(self, txt_file='transactions.txt'):
         if os.stat(txt_file).st_size == 0:
-            raise ValueError("transaction.txt  is empty.")
+            raise ValueError("transaction.txt is empty.")
         for t in open(txt_file):
              if "-" in str(t) and " " in str(t) and "$" in str(t) and str(t).split(" ").__len__() == 3:
                  self._transactions.append(t)
