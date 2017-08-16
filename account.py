@@ -15,7 +15,7 @@ class AccountTransactions:
         if os.stat(txt_file).st_size == 0:
             raise ValueError("transaction.txt  is empty.")
         for t in open(txt_file):
-             if "$" and "-" in str(t) and str(t).split(" ").__len__() == 3:
+             if "-" in str(t) and " " in str(t) and "$" in str(t) and str(t).split(" ").__len__() == 3:
                  self._transactions.append(t)
              else:
                  raise ValueError("Transaction format is incorrect for line: '"+str(t)+"'")
