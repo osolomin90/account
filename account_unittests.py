@@ -1,6 +1,7 @@
 import unittest
 import os
-from account import Transactions
+import StringIO
+from account import AccountTransactions
 
 
 class AccountUnittests(unittest.TestCase):
@@ -13,24 +14,39 @@ class AccountUnittests(unittest.TestCase):
     def test_read_transactions_from_transactions_txt(self):
         with self.file as f:
             f.write("01-02-2017 Deposit $4000.00")
-        assert Transactions().read_transactions(self.__test_file)._transactions.__len__() > 0,\
+        assert AccountTransactions().read_transactions(self.__test_file)._transactions.__len__() > 0,\
             "File is empty or system can not read 'transaction.txt'"
 
     def test_try_to_read_file_from_incorrect_path(self):
-        assert Transactions().read_transactions("absent.txt")._transactions.__len__() == 0
+        try:
+            AccountTransactions().read_transactions("absent.txt")
+            assert False
+        except OSError as e:
+            assert "No such file or directory: 'absent.txt'" in str(e)
 
     def test_is_transaction_count_correct(self):
         with self.file as f:
             f.write("01-02-2017 Deposit $4000.00\n")
             f.write("01-02-2017 Deposit $-1000.00")
-        assert Transactions().read_transactions(self.__test_file).get_transactions_size() == 2
+        assert AccountTransactions().read_transactions(self.__test_file).get_transactions_size() == 2
 
     def test_total_balance(self):
         with self.file as f:
             f.write("01-02-2017 Deposit $4000.00\n")
             f.write("01-02-2017 Deposit $-1000.00\n")
             f.write("01-02-2017 Deposit $150.55")
-        assert Transactions().read_transactions(self.__test_file).get_total_balance() == 3150.55
+        assert AccountTransactions().read_transactions(self.__test_file).get_total_balance() == 3150.55
+
+    def test_if_total_balance_work_with_invalid_format(self):
+        with self.file as f:
+            f.write("01-02-2017 Deposit $4000.00\n")
+            f.write("01-02-2017 Deposit $-1000.00\n")
+            f.write("01-02-2017 Deposit 150.55")
+        try:
+            AccountTransactions().read_transactions(self.__test_file).get_total_balance()
+            assert False
+        except ValueError as e:
+            assert str(e).__eq__("'01-02-2017 Deposit 150.55' transaction set in incorrect format.")
 
     def test_first_transaction_with_negative_balance(self):
         with self.file as f:
@@ -38,26 +54,35 @@ class AccountUnittests(unittest.TestCase):
             f.write("01-03-2017 Deposit $-1000.00\n")
             f.write("01-02-2017 Deposit $150.55\n")
             f.write("01-02-2017 Deposit $-2150.55")
-        assert "-1000" and "01-03-2017" in Transactions().read_transactions(self.__test_file)\
+        assert "-1000" and "01-03-2017" in AccountTransactions().read_transactions(self.__test_file)\
                    .get_first_transaction_with_negative_balance()
 
     def test_if_get_total_balance_is_none_when_transaction_format_is_incorrect(self):
         with self.file as f:
             f.write("01-03-2019")
-        assert Transactions().read_transactions(self.__test_file) \
-            .get_total_balance() is None
+        try:
+            AccountTransactions().read_transactions(self.__test_file).get_total_balance()
+            assert False
+        except ValueError as e:
+            assert str(e).__eq__("Transaction format is incorrect for line: '01-03-2019'")
 
     def test_if_get_transactions_size_is_none_when_transaction_format_is_incorrect(self):
         with self.file as f:
             f.write("")
-        assert Transactions().read_transactions(self.__test_file) \
-            .get_transactions_size() is None
+        try:
+            AccountTransactions().read_transactions(self.__test_file).get_transactions_size()
+            assert False
+        except ValueError as e:
+            assert str(e).__eq__("transaction.txt  is empty.")
 
     def test_if_get_first_transaction_with_negative_balance_is_none_when_transaction_format_is_incorrect(self):
         with self.file as f:
-            f.write("$-4000.00\n")
-        assert Transactions().read_transactions(self.__test_file) \
-            .get_first_transaction_with_negative_balance() is None
+            f.write("test")
+        try:
+            AccountTransactions().read_transactions(self.__test_file).get_first_transaction_with_negative_balance()
+            assert False
+        except ValueError as e:
+            assert str(e).__eq__("Transaction format is incorrect for line: 'test'")
 
     def tearDown(self):
         os.remove(self.__test_file)
